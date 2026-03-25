@@ -24,7 +24,15 @@ feature_columns = st.multiselect("Select feature columns", [c for c in all_colum
 if len(feature_columns) == 0:
     st.warning("Please select at least one feature column.")
     st.stop()
+# Remove date column (important)
+if "Date and time" in data.columns:
+    data = data.drop(columns=["Date and time"])
 
+# Keep only numbers
+data = data.select_dtypes(include=['number'])
+
+# Remove empty values
+data = data.dropna()
 X = data[feature_columns]
 y = data[target_column]
 
