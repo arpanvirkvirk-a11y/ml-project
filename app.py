@@ -48,6 +48,14 @@ if uploaded_file is not None:
     X = data[feature_columns]
     y = data[target_column]
 
+    # ✅ convert everything to numbers (IMPORTANT)
+    X = X.apply(pd.to_numeric, errors='coerce')
+    y = pd.to_numeric(y, errors='coerce')
+
+    # remove invalid rows
+    X = X.dropna()
+    y = y.loc[X.index]
+    
     # Split data
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=42
