@@ -6,28 +6,30 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.metrics import mean_squared_error, r2_score
 
-st.title("Solar Energy ML Predictor")
+st.title("⚡ Solar Energy ML Predictor")
 
 # Upload file
-uploaded_file = st.file_uploader("bissell.csv")
+uploaded_file = st.file_uploader("Upload CSV file")
 
 if uploaded_file is not None:
+    # Read data
     data = pd.read_csv(uploaded_file)
-    # CLEAN DATA (fix error)
-if "Date and time" in data.columns:
-    data = data.drop(columns=["Date and time"])
 
-# remove unwanted column
-data = data.loc[:, ~data.columns.str.contains('^Unnamed')]
+    # CLEAN DATA
+    if "Date and time" in data.columns:
+        data = data.drop(columns=["Date and time"])
 
-# remove empty rows
-data = data.dropna()
+    # remove unnamed columns
+    data = data.loc[:, ~data.columns.str.contains('^Unnamed')]
 
-    
-st.write("### Dataset Preview")
-st.write(data.head())
+    # remove empty rows
+    data = data.dropna()
 
-    # SELECT COLUMNS
+    # Show dataset
+    st.write("### Dataset Preview")
+    st.write(data.head())
+
+    # Select columns
     all_columns = data.columns.tolist()
 
     target_column = st.selectbox("Select target column", all_columns)
@@ -37,12 +39,12 @@ st.write(data.head())
         [c for c in all_columns if c != target_column]
     )
 
-    # ❗ VALIDATION
+    # Validation
     if len(feature_columns) == 0:
         st.warning("Please select at least one feature column.")
         st.stop()
 
-    # 🎯 DEFINE X and y
+    # Define X and y
     X = data[feature_columns]
     y = data[target_column]
 
@@ -51,7 +53,7 @@ st.write(data.head())
         X, y, test_size=0.2, random_state=42
     )
 
-    # MODEL SELECTION
+    # Model selection
     model_choice = st.selectbox(
         "Choose ML model",
         ["Linear Regression", "Random Forest", "Decision Tree"]
@@ -64,7 +66,7 @@ st.write(data.head())
     else:
         model = DecisionTreeRegressor(random_state=42)
 
-    #  TRAIN MODEL
+    # Train model
     if st.button("Train Model"):
         model.fit(X_train, y_train)
 
@@ -76,10 +78,10 @@ st.write(data.head())
         st.success("Model trained successfully!")
 
         st.write("### Model Performance")
-        st.write(f"Mean Squared Error: {mse:.2f}")
+        st.write(f"MSE: {mse:.2f}")
         st.write(f"R2 Score: {r2:.2f}")
 
-        # PREDICTION SECTION
+        # Prediction
         st.write("### Make Prediction")
 
         input_data = []
