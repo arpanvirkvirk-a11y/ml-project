@@ -6,7 +6,7 @@ import shap
 st.title("ML Project with XAI")
 
 # Load data
-df = pd.read_csv("data.csv")
+df = pd.read_csv("bissell.csv")
 
 # EDA
 st.subheader("EDA")
