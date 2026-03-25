@@ -1,35 +1,55 @@
 import streamlit as st
 import pandas as pd
-import matplotlib.pyplot as plt
-import shap
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.metrics import mean_squared_error, r2_score
 
-st.title("ML Project with XAI")
+# --- Load Data ---
+@st.cache_data
+def load_data():
+    df = pd.read_csv("bissell.csv") 
+    return df
 
-# Load data
-df = pd.read_csv("bissell.csv")
+data = load_data()
+st.title("ML Model Trainer")
+st.write("Dataset preview:", data.head())
 
-# EDA
-st.subheader("EDA")
-st.write(df.describe())
+# --- Select Features and Target ---
+all_columns = data.columns.tolist()
+target_column = st.selectbox("Select target column", all_columns)
+feature_columns = st.multiselect("Select feature columns", [c for c in all_columns if c != target_column])
 
-# Model
-from sklearn.ensemble import RandomForestClassifier
-model = RandomForestClassifier()
-model.fit(X_train, y_train)
+if len(feature_columns) == 0:
+    st.warning("Please select at least one feature column.")
+    st.stop()
 
-# Predictions
-pred = model.predict(X_test)
-st.write("Predictions:", pred)
+X = data[feature_columns]
+y = data[target_column]
 
-# Feature Importance
-st.subheader("Feature Importance")
-importances = model.feature_importances_
-st.bar_chart(importances)
+# Split data
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-# SHAP
-st.subheader("SHAP Values")
-explainer = shap.Explainer(model, X_train)
-shap_values = explainer(X_test)
+# --- Choose Model ---
+model_choice = st.selectbox("Choose ML model", ["Linear Regression", "Random Forest", "Decision Tree"])
 
-fig = shap.plots.bar(shap_values, show=False)
-st.pyplot(fig)
+if model_choice == "Linear Regression":
+    model = LinearRegression()
+elif model_choice == "Random Forest":
+    model = RandomForestRegressor(n_estimators=100, random_state=42)
+else:
+    model = DecisionTreeRegressor(random_state=42)
+
+# --- Train Model ---
+if st.button("Train Model"):
+    model.fit(X_train, y_train)
+    st.success(f"{model_choice} trained successfully!")
+
+    # --- Evaluate Model ---
+    y_pred = model.predict(X_test)
+    mse = mean_squared_error(y_test, y_pred)
+    r2 = r2_score(y_test, y_pred)
+
+    st.write(f"**Mean Squared Error:** {mse:.2f}")
+    st.write(f"**R2 Score:** {r2:.2f}")
