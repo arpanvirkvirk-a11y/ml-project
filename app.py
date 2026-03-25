@@ -6,13 +6,23 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.metrics import mean_squared_error, r2_score
 
-st.title("⚡ Solar Energy ML Predictor")
+st.title("Solar Energy ML Predictor")
 
 # Upload file
-uploaded_file = st.file_uploader("Upload your CSV file")
+uploaded_file = st.file_uploader("bissell.csv")
 
 if uploaded_file is not None:
     data = pd.read_csv(uploaded_file)
+    # CLEAN DATA (fix error)
+if "Date and time" in data.columns:
+    data = data.drop(columns=["Date and time"])
+
+# remove unwanted column
+data = data.loc[:, ~data.columns.str.contains('^Unnamed')]
+
+# remove empty rows
+data = data.dropna()
+    
 
     st.write("### Dataset Preview")
     st.write(data.head())
@@ -23,7 +33,7 @@ if uploaded_file is not None:
 
     data = data.dropna()
 
-    # ✅ SELECT COLUMNS
+    # SELECT COLUMNS
     all_columns = data.columns.tolist()
 
     target_column = st.selectbox("Select target column", all_columns)
