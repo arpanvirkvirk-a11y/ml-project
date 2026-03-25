@@ -22,16 +22,10 @@ data = data.loc[:, ~data.columns.str.contains('^Unnamed')]
 
 # remove empty rows
 data = data.dropna()
+
     
-
-    st.write("### Dataset Preview")
-    st.write(data.head())
-
-    # 🔧 CLEAN DATA FIRST
-    if "Date and time" in data.columns:
-        data = data.drop(columns=["Date and time"])
-
-    data = data.dropna()
+st.write("### Dataset Preview")
+st.write(data.head())
 
     # SELECT COLUMNS
     all_columns = data.columns.tolist()
